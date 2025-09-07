@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import { Button, Form, FormGroup, Input, InputGroup, Label, Card, CardTitle, CardText } from "reactstrap";
 
 const initialForm = {
@@ -17,7 +18,7 @@ const OrderForm = () => {
 
   const [formData, setFormData] = useState(initialForm);
 
-
+  const history = useHistory();
   const handleChange = (e) => {
     const { value } = e.target
     const { boyut, kalınlık, malzemeler, isim } = formData;
@@ -52,6 +53,8 @@ const OrderForm = () => {
       .catch(function (error) {
         console.log(error);
       });
+
+    history.push("/success");
   }
 
 
@@ -135,7 +138,7 @@ const OrderForm = () => {
               inline
               className="my-2"
             >
-              <Input type="checkbox" value={item} className="" />
+              <Input type="checkbox" value={item} className="" data-cy="malzeme" />
               <Label check>
                 {item}
               </Label>
@@ -159,9 +162,10 @@ const OrderForm = () => {
               style={{ resize: "none" }}
               onChange={handleChange}
               value={formData.isim}
+              data-cy="isim"
             />
             <FormGroup />
-            {formData.isim && formData.isim.length < 4 ? <span className="!text-red-500">İsim 3 karakterden uzun olmalı</span> : <span></span>}
+            {formData.isim && formData.isim.length < 4 ? <span className="!text-red-500" data-cy="isim-hata">İsim 3 karakterden uzun olmalı</span> : <span></span>}
             <FormGroup className="flex flex-col justify-start w-full text-left mt-4"></FormGroup>
             <Label for="not" className="text-xl font-semibold">
               Sipariş Notu
@@ -205,7 +209,7 @@ const OrderForm = () => {
             Toplam
             <span>105</span>
           </CardText>
-          <Button onClick={handleSubmit} disabled={!(formData.boyut && formData.kalınlık && formData.malzemeler.length >= 3 && formData.isim.length > 3)} color="warning" className="w-full !bg-[#FDC913]">
+          <Button onClick={handleSubmit} disabled={!(formData.boyut && formData.kalınlık && formData.malzemeler.length >= 3 && formData.isim.length > 3)} color="warning" className="w-full !bg-[#FDC913]" data-cy="submit">
             SİPARİŞ VER
           </Button>
         </Card>
