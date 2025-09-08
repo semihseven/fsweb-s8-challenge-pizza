@@ -2,6 +2,9 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Button, Form, FormGroup, Input, InputGroup, Label, Card, CardTitle, CardText } from "reactstrap";
+import YemekCard from "./YemekCard";
+import yemekler from "../data";
+
 
 const initialForm = {
   isim: "",
@@ -11,28 +14,31 @@ const initialForm = {
   kalınlık: ""
 }
 
-const malzemeListesi = ["Pepperoni", "Sosis", "Kanada Jambonu", "Tavuk Izgara", "Soğan", "Domates", "Mısır", "Sucuk", "Jalepeno", "Sarımsak", "Biber", "Sucuk", "Ananas", "Kabak"];
+const malzemeListesi = ["Pepperoni", "Sosis", "Kanada Jambonu", "Tavuk Izgara", "Soğan", "Domates", "Mısır", "Jalepeno", "Sarımsak", "Biber", "Sucuk", "Ananas", "Kabak", "Zeytin", "Ekstra Sos"];
 
 
-const OrderForm = () => {
+const OrderForm = (props) => {
+
+  const { count, setCount } = props;
 
   const [formData, setFormData] = useState(initialForm);
 
   const history = useHistory();
+
   const handleChange = (e) => {
+
     const { value } = e.target
-    const { boyut, kalınlık, malzemeler, isim } = formData;
     let newValue;
 
     if (e.target.type === "checkbox") {
       const oldValues = formData.malzemeler
-
       if (oldValues.includes(value)) {
         newValue = oldValues.filter((v) => v !== value)
       } else {
         newValue = [...oldValues, value]
       }
       setFormData({ ...formData, malzemeler: newValue });
+
     } else {
       setFormData({ ...formData, [e.target.name]: value })
     }
@@ -57,14 +63,29 @@ const OrderForm = () => {
     history.push("/success");
   }
 
+  const handleCount = (e) => {
 
+    if (e.target.textContent === "+") {
+      setCount(count + 1);
+    } else if (e.target.textContent === "-") {
+      if (count > 0) {
+        setCount(count - 1)
+      } else {
+        setCount(0);
+      }
+    }
+
+
+  }
 
   return (
-    <div className="w-1/3 flex flex-col">
-      <div className="flex justify-between m-4 text-left">
+    <div className="w-1/3 flex flex-col font-[Barlow] ">
+      <YemekCard />
+
+      <div className="flex justify-between my-4 text-left">
         <Form onChange={handleChange} name="size" className="flex flex-col items-start">
-          <span className="m-2 text-xl font-semibold">Boyut Seç{formData.boyut ? <span /> : <span className="!text-red-500">  *</span>}</span>
-          <FormGroup check className="m-2">
+          <span className="my-2 text-xl font-semibold">Boyut Seç{formData.boyut ? <span /> : <span className="!text-red-500">  *</span>}</span>
+          <FormGroup check className="my-2">
             <Input
               name="boyut"
               type="radio"
@@ -75,7 +96,7 @@ const OrderForm = () => {
               Küçük
             </Label>
           </FormGroup>
-          <FormGroup check className="m-2">
+          <FormGroup check className="my-2">
             <Input
               name="boyut"
               type="radio"
@@ -86,7 +107,7 @@ const OrderForm = () => {
               Orta
             </Label>
           </FormGroup>
-          <FormGroup check className="m-2">
+          <FormGroup check className="my-2">
             <Input
               name="boyut"
               type="radio"
@@ -128,8 +149,11 @@ const OrderForm = () => {
         </Form>
       </div>
 
-      <div className="">
-        <Form onChange={handleChange} name="malzemeler" className="flex flex-col flex-wrap max-h-64 content-between p-4 text-left">
+      <div className="text-left">
+        <p className="text-xl font-semibold">Ek Malzemeler</p>
+        <p className="text-base font-medium text-[#5F5F5F]">En Fazla 10 Malzeme Seçebilirsiniz. 5₺</p>
+
+        <Form onChange={handleChange} name="malzemeler" className="flex flex-col flex-wrap max-h-64 content-between text-left">
 
           {malzemeListesi.map(item =>
 
@@ -138,7 +162,10 @@ const OrderForm = () => {
               inline
               className="my-2"
             >
-              <Input type="checkbox" value={item} className="" data-cy="malzeme" />
+              <Input type="checkbox" value={item} className="" data-cy="malzeme" disabled={
+                formData.malzemeler.length >= 10 &&
+                !formData.malzemeler.includes(item)
+              } />
               <Label check>
                 {item}
               </Label>
@@ -146,6 +173,7 @@ const OrderForm = () => {
           )}
         </Form>
         {formData.malzemeler && formData.malzemeler.length < 3 ? <span className="!text-red-500">En az 3 malzeme seçilmeli</span> : <span></span>}
+        {formData.malzemeler && formData.malzemeler.length >= 10 ? <span className="!text-red-500">En fazla 10 malzeme seçebilirsin</span> : <span></span>}
       </div>
 
       <div className="flex flex-col items-start">
@@ -182,16 +210,18 @@ const OrderForm = () => {
           </FormGroup>
         </Form>
       </div>
+
       <hr className="border-t border-black-100 my-4"></hr>
+
       <div className="flex justify-between">
         <InputGroup className="h-12" >
-          <Button color="warning" className="shrink w-10 !bg-[#FDC913]">
+          <Button onClick={handleCount} color="warning" className="shrink w-10 !bg-[#FDC913]">
             +
           </Button>
           <div className="w-12">
-            <Input type="text" placeholder=" 1 " className="h-12" />
+            <Input type="text" placeholder="1" className="h-12" value={count} />
           </div>
-          <Button color="warning" className="shrink w-10 !bg-[#FDC913]">
+          <Button onClick={handleCount} color="warning" className="shrink w-10 !bg-[#FDC913]">
             -
           </Button>
         </InputGroup>
@@ -200,20 +230,21 @@ const OrderForm = () => {
           <CardTitle tag="h5" className="!m-8">
             Sipariş Toplamı
           </CardTitle>
-          <CardText className="flex justify-between !mx-8">
+          <CardText className="flex justify-between !mx-8 font-medium">
             Seçimler
-            <span>25.00</span>
+            <span>{(formData.malzemeler.length * 5.00).toFixed(2)}₺</span>
           </CardText>
 
-          <CardText className="flex justify-between !mx-8">
+          <CardText className="flex justify-between !mx-8 text-red-500 font-medium">
             Toplam
-            <span>105</span>
+            <span>{(((Number(yemekler[0].fiyat)) + (formData.malzemeler.length * 5.00)) * count).toFixed(2)}₺</span>
           </CardText>
           <Button onClick={handleSubmit} disabled={!(formData.boyut && formData.kalınlık && formData.malzemeler.length >= 3 && formData.isim.length > 3)} color="warning" className="w-full !bg-[#FDC913]" data-cy="submit">
             SİPARİŞ VER
           </Button>
         </Card>
       </div>
+
     </div>
   );
 };

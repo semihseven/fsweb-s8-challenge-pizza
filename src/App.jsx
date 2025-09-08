@@ -17,7 +17,8 @@ import {
 
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+
 
   return (
     <div className='flex flex-col justify-start items-center w-screen h-screen'
@@ -30,7 +31,7 @@ function App() {
             <Home />
           </Route>
           <Route exact path="/neworder">
-            <OrderForm />
+            <OrderForm count={count} setCount={setCount} />
           </Route>
           <Route exact path="/success">
             <Success />
