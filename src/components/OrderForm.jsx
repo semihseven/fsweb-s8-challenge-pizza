@@ -1,51 +1,26 @@
-import axios from "axios";
-import React, { useState } from "react";
+
+import React, { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Button, Form, FormGroup, Input, InputGroup, Label, Card, CardTitle, CardText } from "reactstrap";
 import YemekCard from "./YemekCard";
 import yemekler from "../data";
+import axios from "axios";
 
 
-const initialForm = {
-  isim: "",
-  not: "",
-  malzemeler: [],
-  boyut: "",
-  kalınlık: ""
-}
+
 
 const malzemeListesi = ["Pepperoni", "Sosis", "Kanada Jambonu", "Tavuk Izgara", "Soğan", "Domates", "Mısır", "Jalepeno", "Sarımsak", "Biber", "Sucuk", "Ananas", "Kabak", "Zeytin", "Ekstra Sos"];
 
 
 const OrderForm = (props) => {
 
-  const { count, setCount } = props;
-
-  const [formData, setFormData] = useState(initialForm);
+  const { count, setCount, formData, setFormData, fiyat, setFiyat, yanit, setYanit } = props;
 
   const history = useHistory();
 
-  const handleChange = (e) => {
-
-    const { value } = e.target
-    let newValue;
-
-    if (e.target.type === "checkbox") {
-      const oldValues = formData.malzemeler
-      if (oldValues.includes(value)) {
-        newValue = oldValues.filter((v) => v !== value)
-      } else {
-        newValue = [...oldValues, value]
-      }
-      setFormData({ ...formData, malzemeler: newValue });
-
-    } else {
-      setFormData({ ...formData, [e.target.name]: value })
-    }
-  }
-
   const handleSubmit = (e) => {
     e.preventDefault();
+
 
     axios.post('https://reqres.in/api/pizza', formData, {
       headers: {
@@ -54,29 +29,39 @@ const OrderForm = (props) => {
     }
     )
       .then(function (response) {
-        console.log(response);
+        console.log(response.data);
+        setYanit(response.data);
+        history.push("/success");
       })
       .catch(function (error) {
         console.log(error);
       });
-
-    history.push("/success");
   }
 
-  const handleCount = (e) => {
+  const handleChange = (e) => {
 
-    if (e.target.textContent === "+") {
-      setCount(count + 1);
-    } else if (e.target.textContent === "-") {
-      if (count > 0) {
-        setCount(count - 1)
+    const { value } = e.target;
+    let newValue;
+
+    if (e.target.type === "checkbox") {
+      const oldValues = formData.malzemeler
+      if (oldValues.includes(value)) {
+        newValue = oldValues.filter((v) => v !== value);
+        setFiyat({ ...fiyat, ekMalzeme: fiyat.ekMalzeme - 5 })
       } else {
-        setCount(0);
+        newValue = [...oldValues, value];
+        setFiyat({ ...fiyat, ekMalzeme: fiyat.ekMalzeme + 5 })
       }
+      setFormData({ ...formData, malzemeler: newValue });
+
+    } else {
+      setFormData({ ...formData, [e.target.name]: value })
     }
-
-
   }
+
+  useEffect(() => {
+    setFiyat({ ...fiyat, yemekFiyat: yemekler[0].fiyat * count });
+  }, [count])
 
   return (
     <div className="w-1/3 flex flex-col font-[Barlow] ">
@@ -89,7 +74,7 @@ const OrderForm = (props) => {
             <Input
               name="boyut"
               type="radio"
-              value="küçük"
+              value="Küçük"
             />
             {' '}
             <Label >
@@ -100,7 +85,7 @@ const OrderForm = (props) => {
             <Input
               name="boyut"
               type="radio"
-              value="orta"
+              value="Orta"
             />
             {' '}
             <Label >
@@ -111,7 +96,7 @@ const OrderForm = (props) => {
             <Input
               name="boyut"
               type="radio"
-              value="büyük"
+              value="Büyük"
             />
             {' '}
             <Label check>
@@ -133,9 +118,9 @@ const OrderForm = (props) => {
               id="kalınlık"
               name="kalınlık"
               type="select"
-              className=""
+              defaultValue="1"
             >
-              <option disabled selected>Hamur Kalınlığı</option>
+              <option value="1" disabled>Hamur Kalınlığı</option>
               <option>
                 İnce
               </option>
@@ -155,14 +140,15 @@ const OrderForm = (props) => {
 
         <Form onChange={handleChange} name="malzemeler" className="flex flex-col flex-wrap max-h-64 content-between text-left">
 
-          {malzemeListesi.map(item =>
+          {malzemeListesi.map((item, id) =>
 
             <FormGroup
               check
               inline
               className="my-2"
+              key={id}
             >
-              <Input type="checkbox" value={item} className="" data-cy="malzeme" disabled={
+              <Input type="checkbox" key={id} value={item} className="" data-cy="malzeme" disabled={
                 formData.malzemeler.length >= 10 &&
                 !formData.malzemeler.includes(item)
               } />
@@ -215,13 +201,13 @@ const OrderForm = (props) => {
 
       <div className="flex justify-between">
         <InputGroup className="h-12" >
-          <Button onClick={handleCount} color="warning" className="shrink w-10 !bg-[#FDC913]">
+          <Button onClick={() => setCount(count + 1)} color="warning" className="shrink w-10 !bg-[#FDC913]">
             +
           </Button>
           <div className="w-12">
             <Input type="text" placeholder="1" className="h-12" value={count} />
           </div>
-          <Button onClick={handleCount} color="warning" className="shrink w-10 !bg-[#FDC913]">
+          <Button onClick={() => setCount(count - 1)} color="warning" className="shrink w-10 !bg-[#FDC913]">
             -
           </Button>
         </InputGroup>
@@ -232,14 +218,14 @@ const OrderForm = (props) => {
           </CardTitle>
           <CardText className="flex justify-between !mx-8 font-medium">
             Seçimler
-            <span>{(formData.malzemeler.length * 5.00).toFixed(2)}₺</span>
+            <span>{fiyat.ekMalzeme.toFixed(2)}₺</span>
           </CardText>
 
           <CardText className="flex justify-between !mx-8 text-red-500 font-medium">
             Toplam
-            <span>{(((Number(yemekler[0].fiyat)) + (formData.malzemeler.length * 5.00)) * count).toFixed(2)}₺</span>
+            <span>{(fiyat.ekMalzeme + fiyat.yemekFiyat).toFixed(2)}₺</span>
           </CardText>
-          <Button onClick={handleSubmit} disabled={!(formData.boyut && formData.kalınlık && formData.malzemeler.length >= 3 && formData.isim.length > 3)} color="warning" className="w-full !bg-[#FDC913]" data-cy="submit">
+          <Button onClick={handleSubmit} disabled={!(formData.boyut && formData.kalınlık && formData.malzemeler.length >= 3 && formData.isim.length > 3 && count > 0)} color="warning" className="w-full !bg-[#FDC913]" data-cy="submit">
             SİPARİŞ VER
           </Button>
         </Card>
