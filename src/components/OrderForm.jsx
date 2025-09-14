@@ -201,7 +201,7 @@ const OrderForm = (props) => {
 
       <div className="flex justify-between">
         <InputGroup className="h-12" >
-          <Button onClick={() => setCount(count + 1)} color="warning" className="shrink w-10 !bg-[#FDC913]">
+          <Button onClick={() => setCount(count + 1)} color="warning" className="shrink w-10 !bg-[#FDC913]" data-cy="ekle">
             +
           </Button>
           <div className="w-12">

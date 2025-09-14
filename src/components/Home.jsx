@@ -10,10 +10,10 @@ const Home = () => {
 
   const history = useHistory();
 
-
   const handleClick = () => {
     history.push("/neworder")
   }
+
   return (
     <div className="flex flex-col items-center justify-start h-full text-white bg-cover w-full"
       style={{ backgroundImage: "url('../images/iteration-1-images/home-banner.png')" }}>
