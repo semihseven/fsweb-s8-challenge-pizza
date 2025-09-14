@@ -3,8 +3,8 @@ import yemekler from "../data";
 import { Card, CardText, CardTitle } from "reactstrap";
 
 const Success = (props) => {
-  const { formData, fiyat, yanit } = props;
-  console.log(yanit)
+  const { fiyat, yanit } = props;
+  console.log(yanit);
   return (
     <div className="flex flex-col justify-start items-center w-full h-full bg-[#CE2829] text-white ">
       <h3 className="font-[Satisfy] text-[#FDC913]">lezzetin yolda</h3>
@@ -12,9 +12,9 @@ const Success = (props) => {
       <hr className="!border-t !border-black-100 my-4 w-1/3"></hr>
       <h4 className="text-center">{yemekler[0].isim}</h4>
       <div className="mt-12 flex flex-col flex-wrap justify-start items-between !font-[Roboto_Condensed] w-1/7 text-left">
-        <p className="font-extralight">Boyut: <span className="font-normal">{formData.boyut}</span></p>
-        <p className="font-extralight">Hamur: <span className="font-normal">{formData.kalınlık}</span></p>
-        <p className="font-extralight">Ek Malzemeler: <span className="font-normal">{formData.malzemeler.join(", ")}</span></p>
+        <p className="font-extralight">Boyut: <span className="font-normal">{yanit.boyut}</span></p>
+        <p className="font-extralight">Hamur: <span className="font-normal">{yanit.kalınlık}</span></p>
+        <p className="font-extralight">Ek Malzemeler: <span className="font-normal">{yanit.malzemeler.join(", ")}</span></p>
 
       </div>
 

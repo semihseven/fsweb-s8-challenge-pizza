@@ -15,7 +15,7 @@ import {
   Route,
   useHistory
 } from "react-router-dom";
-import yemekler from './data'
+
 
 
 const initialForm = {
@@ -46,7 +46,9 @@ function App() {
 
       <Router>
         <Header />
+
         <Switch>
+
           <Route exact path="/">
             <Home />
           </Route>
